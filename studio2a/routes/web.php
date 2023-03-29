@@ -17,7 +17,7 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-//7Day
+//7Day API Routes
 $router->get('pokemon', 'PokemonController@getAllPokemon');
 $router->post('pokemon', 'PokemonController@createUpdatePokemon');
 $router->delete('pokemon/{id}', 'PokemonController@deletePokemon');
