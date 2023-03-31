@@ -62,7 +62,18 @@ class PokemonController extends Controller
 
     public function searchPokemon(Request $request){
         try{
-            $response['results'] = Pokemon::where('name', 'LIKE', '%' . $request->input('name') . '%')->get();
+            $result = Pokemon::where('name', 'LIKE', '%' . $request->input('name') . '%');
+            
+            switch($request->input('sort')){
+                case 'asc':
+                    $result->orderBy('name');
+                    break;
+                case 'dsc':
+                    $result->orderByDesc('name');
+                    break;
+            }
+
+            $response['results'] = $result->get();
         } catch(\Exception $e){
             Log::error('Unable to search pokemon');
             $response['message'] = 'Unable to search pokemon';
