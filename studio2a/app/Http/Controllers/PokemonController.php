@@ -10,7 +10,19 @@ use App\Models\Pokemon;
 class PokemonController extends Controller
 {
     public function getAllPokemon(Request $request){
-        $response['pokemonList'] = Pokemon::get();
+        $pokemonList = Pokemon::get();
+
+        //Loop through the list and attempt to get pokemon image based on name
+        foreach($pokemonList as $pokemon){
+            try{
+                $pokeAPIResponse = json_decode(file_get_contents('https://pokeapi.co/api/v2/pokemon/' . strtolower($pokemon->name)), true);
+                $pokemon->image = $pokeAPIResponse['sprites']['front_default'];
+            } catch(\Exception $e){
+                $pokemon->image = '';
+            }
+        }
+
+        $response['pokemonList'] = $pokemonList;
         $response['success'] = true;
         $response['status'] = 200;
         return response()->json($response, 200);
@@ -73,7 +85,7 @@ class PokemonController extends Controller
                     break;
             }
 
-            $response['results'] = $result->get();
+            $pokemonList = $result->get();
         } catch(\Exception $e){
             Log::error('Unable to search pokemon');
             $response['message'] = 'Unable to search pokemon';
@@ -81,6 +93,16 @@ class PokemonController extends Controller
             $response['status'] = 500;
         }
 
+        foreach($pokemonList as $pokemon){
+            try{
+                $pokeAPIResponse = json_decode(file_get_contents('https://pokeapi.co/api/v2/pokemon/' . strtolower($pokemon->name)), true);
+                $pokemon->image = $pokeAPIResponse['sprites']['front_default'];
+            } catch(\Exception $e){
+                $pokemon->image = 'https://cdn-icons-png.flaticon.com/512/3106/3106703.png';
+            }
+        }
+
+        $response['results'] = $pokemonList;
         $response['success'] = true;
         $response['status'] = 200;
         return response()->json($response, 200);
